@@ -1,0 +1,694 @@
+{
+  "coding_challenges": [
+    {
+      "challenge_id": "CHAL_001",
+      "title": "Begin Here",
+      "description": "Solve a simple challenge to become familiar with this platform.",
+      "category": "Getting Started",
+      "difficulty": "Beginner",
+      "points": 50,
+      "tags": [
+        "basics",
+        "introduction",
+        "first-steps"
+      ],
+      "learning_objectives": [
+        "Set up a basic PennyLane quantum circuit",
+        "Apply single-qubit gates",
+        "Measure quantum states"
+      ],
+      "hints": [
+        "Start with importing pennylane as qml",
+        "Use qml.device() to create a quantum device",
+        "Remember to decorate your quantum function with @qml.qnode"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_002",
+      "title": "Returning Expectation Values",
+      "description": "Build a PennyLane circuit that returns the expectation value.",
+      "category": "Getting Started",
+      "difficulty": "Beginner",
+      "points": 75,
+      "tags": [
+        "expectation-values",
+        "measurements",
+        "observables"
+      ],
+      "learning_objectives": [
+        "Understand quantum expectation values",
+        "Use qml.expval() function",
+        "Work with Pauli observables"
+      ],
+      "hints": [
+        "Use qml.expval(qml.PauliZ(0)) to measure Z expectation",
+        "Remember that expectation values range from -1 to +1",
+        "Try different quantum states to see how expectation values change"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_003",
+      "title": "Returning Tensor Product Observables",
+      "description": "Return the expectation value of a 2-qubit observable.",
+      "category": "Getting Started",
+      "difficulty": "Beginner",
+      "points": 100,
+      "tags": [
+        "tensor-products",
+        "multi-qubit",
+        "observables"
+      ],
+      "learning_objectives": [
+        "Construct tensor product observables",
+        "Measure multi-qubit expectation values",
+        "Understand qubit correlations"
+      ],
+      "hints": [
+        "Use @ operator for tensor products: qml.PauliZ(0) @ qml.PauliZ(1)",
+        "Tensor products allow measuring correlations between qubits",
+        "Try entangled states to see non-classical correlations"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_004",
+      "title": "States and Probabilities",
+      "description": "Prepare a two-qubit state and measure output probabilities.",
+      "category": "Getting Started",
+      "difficulty": "Beginner",
+      "points": 100,
+      "tags": [
+        "probabilities",
+        "measurements",
+        "quantum-states"
+      ],
+      "learning_objectives": [
+        "Use qml.probs() to get measurement probabilities",
+        "Understand computational basis measurements",
+        "Prepare and measure multi-qubit states"
+      ],
+      "hints": [
+        "qml.probs() returns probabilities for all computational basis states",
+        "For 2 qubits, you get probabilities for |00\u27e9, |01\u27e9, |10\u27e9, |11\u27e9",
+        "Probabilities should always sum to 1"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_005",
+      "title": "Certificate Challenge: Introduction to PennyLane",
+      "description": "Test your basics of PennyLane and earn a certificate.",
+      "category": "Getting Started",
+      "difficulty": "Intermediate",
+      "points": 200,
+      "tags": [
+        "certificate",
+        "comprehensive",
+        "assessment"
+      ],
+      "learning_objectives": [
+        "Demonstrate mastery of basic PennyLane concepts",
+        "Combine multiple quantum operations",
+        "Solve complex measurement problems"
+      ],
+      "hints": [
+        "Review all previous challenges",
+        "This covers circuits, measurements, and observables",
+        "Take your time - certificates require precision"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_006",
+      "title": "Universality of Single-Qubit Gates",
+      "description": "Create an arbitrary single-qubit gate using rotations.",
+      "category": "Quantum Circuits",
+      "difficulty": "Beginner",
+      "points": 125,
+      "tags": [
+        "rotations",
+        "single-qubit",
+        "universality"
+      ],
+      "learning_objectives": [
+        "Understand Euler angle decomposition",
+        "Use RX, RY, RZ rotation gates",
+        "Implement arbitrary single-qubit unitaries"
+      ],
+      "hints": [
+        "Any single-qubit unitary can be written as RZ(\u03b1)RY(\u03b2)RZ(\u03b3)",
+        "Use qml.RY(), qml.RZ() for rotations",
+        "Angles are in radians"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_007",
+      "title": "Mid-Circuit Measurements",
+      "description": "Construct a circuit with mid-circuit measurements.",
+      "category": "Quantum Circuits",
+      "difficulty": "Beginner",
+      "points": 150,
+      "tags": [
+        "mid-circuit",
+        "measurements",
+        "conditional"
+      ],
+      "learning_objectives": [
+        "Perform measurements during circuit execution",
+        "Use measurement results for conditional operations",
+        "Understand quantum-classical interfaces"
+      ],
+      "hints": [
+        "Use qml.measure() for mid-circuit measurements",
+        "Store measurement results in classical variables",
+        "Use qml.cond() for conditional quantum operations"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_008",
+      "title": "My First Quantum Simulation",
+      "description": "Build a toy version of PennyLane using numpy.",
+      "category": "Quantum Circuits",
+      "difficulty": "Beginner",
+      "points": 175,
+      "tags": [
+        "simulation",
+        "numpy",
+        "implementation"
+      ],
+      "learning_objectives": [
+        "Understand quantum state vector representation",
+        "Implement basic quantum gates as matrices",
+        "Simulate quantum circuits with classical computation"
+      ],
+      "hints": [
+        "Quantum states are complex vectors of length 2^n",
+        "Gates are unitary matrices that multiply state vectors",
+        "Use numpy.kron() for tensor products"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_009",
+      "title": "The Parameter-Shift Rule",
+      "description": "Calculate the gradient of a variational circuit.",
+      "category": "Optimization",
+      "difficulty": "Beginner",
+      "points": 125,
+      "tags": [
+        "gradients",
+        "parameter-shift",
+        "optimization"
+      ],
+      "learning_objectives": [
+        "Understand quantum parameter gradients",
+        "Implement the parameter-shift rule",
+        "Calculate derivatives of quantum expectation values"
+      ],
+      "hints": [
+        "Parameter-shift rule: \u2202\u27e8H\u27e9/\u2202\u03b8 = (\u27e8H\u27e9_{\u03b8+\u03c0/2} - \u27e8H\u27e9_{\u03b8-\u03c0/2})/2",
+        "Use qml.grad() for automatic differentiation",
+        "Works for gates with two distinct eigenvalues"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_010",
+      "title": "The Hessian of a Circuit",
+      "description": "Use the parameter-shift rule to calculate the Hessian.",
+      "category": "Optimization",
+      "difficulty": "Beginner",
+      "points": 150,
+      "tags": [
+        "hessian",
+        "second-derivatives",
+        "optimization"
+      ],
+      "learning_objectives": [
+        "Calculate second-order derivatives",
+        "Understand Hessian matrices for quantum circuits",
+        "Apply parameter-shift to higher derivatives"
+      ],
+      "hints": [
+        "Hessian is matrix of second partial derivatives",
+        "Apply parameter-shift rule twice",
+        "Use qml.metric_tensor() for quantum Fisher information"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_011",
+      "title": "Keeping Expectations Low",
+      "description": "Use an optimization routine to minimize an expectation value.",
+      "category": "Optimization",
+      "difficulty": "Beginner",
+      "points": 175,
+      "tags": [
+        "minimization",
+        "optimizers",
+        "vqe"
+      ],
+      "learning_objectives": [
+        "Set up optimization problems for quantum circuits",
+        "Use classical optimizers with quantum gradients",
+        "Find ground states through variational methods"
+      ],
+      "hints": [
+        "Use qml.GradientDescentOptimizer or qml.AdamOptimizer",
+        "Start with small learning rates",
+        "Monitor convergence by tracking cost function"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_012",
+      "title": "A Simple Trotterization",
+      "description": "Implement the unitary evolution of a Hamiltonian.",
+      "category": "Hamiltonians",
+      "difficulty": "Beginner",
+      "points": 150,
+      "tags": [
+        "trotterization",
+        "time-evolution",
+        "hamiltonians"
+      ],
+      "learning_objectives": [
+        "Understand Trotter-Suzuki decomposition",
+        "Implement time evolution operators",
+        "Approximate non-commuting Hamiltonians"
+      ],
+      "hints": [
+        "e^{i(A+B)t} \u2248 (e^{iAt/n}e^{iBt/n})^n for large n",
+        "Use qml.ApproxTimeEvolution for built-in Trotterization",
+        "Smaller time steps give better approximations"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_013",
+      "title": "Hamiltonians and Operator Arithmetic",
+      "description": "Create a given Hamiltonian using operator arithmetic.",
+      "category": "Hamiltonians",
+      "difficulty": "Intermediate",
+      "points": 200,
+      "tags": [
+        "hamiltonians",
+        "operators",
+        "arithmetic"
+      ],
+      "learning_objectives": [
+        "Construct complex Hamiltonians from basic operators",
+        "Use qml.Hamiltonian for operator arithmetic",
+        "Understand quantum many-body systems"
+      ],
+      "hints": [
+        "Use qml.Hamiltonian(coeffs, observables) constructor",
+        "Combine Pauli strings with coefficients",
+        "Check Hamiltonian properties like hermiticity"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_014",
+      "title": "Hydro Bonding",
+      "description": "Calculate the ground energy of a Hydrogen molecule.",
+      "category": "Quantum Chemistry",
+      "difficulty": "Beginner",
+      "points": 200,
+      "tags": [
+        "chemistry",
+        "vqe",
+        "molecules"
+      ],
+      "learning_objectives": [
+        "Set up molecular Hamiltonian for H2",
+        "Use VQE to find molecular ground states",
+        "Understand quantum chemistry applications"
+      ],
+      "hints": [
+        "Use qml.qchem.molecular_hamiltonian() for H2",
+        "Try UCCSD ansatz for chemistry problems",
+        "Ground state energy should be around -1.137 Hartree"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_015",
+      "title": "Ising Uprising",
+      "description": "Use the VQE on the Transverse Ising Model.",
+      "category": "Quantum Chemistry",
+      "difficulty": "Intermediate",
+      "points": 250,
+      "tags": [
+        "ising-model",
+        "vqe",
+        "phase-transitions"
+      ],
+      "learning_objectives": [
+        "Implement transverse field Ising model",
+        "Study quantum phase transitions",
+        "Use VQE for many-body physics"
+      ],
+      "hints": [
+        "TFIM Hamiltonian: H = -J\u2211ZZ - h\u2211X",
+        "Try different transverse field strengths",
+        "Look for quantum phase transition around h/J = 1"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_016",
+      "title": "Introduction to LCUs",
+      "description": "Apply a non-unitary operator to a quantum state.",
+      "category": "Algorithms",
+      "difficulty": "Beginner",
+      "points": 175,
+      "tags": [
+        "lcu",
+        "linear-combination",
+        "non-unitary"
+      ],
+      "learning_objectives": [
+        "Understand Linear Combination of Unitaries",
+        "Implement non-unitary operations probabilistically",
+        "Use ancilla qubits for quantum algorithms"
+      ],
+      "hints": [
+        "LCU decomposes non-unitary operators as weighted sum of unitaries",
+        "Use ancilla qubits to control which unitary is applied",
+        "Success probability depends on the weights"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_017",
+      "title": "Reaching for the Ratio",
+      "description": "Optimize the efficiency of your QAOA routine.",
+      "category": "Algorithms",
+      "difficulty": "Advanced",
+      "points": 300,
+      "tags": [
+        "qaoa",
+        "optimization",
+        "approximation-ratio"
+      ],
+      "learning_objectives": [
+        "Implement Quantum Approximate Optimization Algorithm",
+        "Optimize QAOA parameters for best performance",
+        "Understand approximation ratios for combinatorial problems"
+      ],
+      "hints": [
+        "QAOA alternates between problem and mixer Hamiltonians",
+        "Use classical optimization to find best angle parameters",
+        "Higher p (more layers) generally gives better approximation ratios"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_018",
+      "title": "The False Proof",
+      "description": "Use a quantum circuit to debunk a flawed proof.",
+      "category": "Algorithms",
+      "difficulty": "Advanced",
+      "points": 350,
+      "tags": [
+        "verification",
+        "proof-checking",
+        "oracles"
+      ],
+      "learning_objectives": [
+        "Implement quantum verification algorithms",
+        "Use quantum circuits to check mathematical proofs",
+        "Understand quantum advantage in verification"
+      ],
+      "hints": [
+        "Quantum circuits can verify some proofs exponentially faster",
+        "Use oracle functions to encode the proof structure",
+        "Look for quantum interference to detect errors"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_019",
+      "title": "A Shor Thing",
+      "description": "Program Shor's 9-qubit code.",
+      "category": "Error Correction",
+      "difficulty": "Beginner",
+      "points": 225,
+      "tags": [
+        "error-correction",
+        "shor-code",
+        "stabilizers"
+      ],
+      "learning_objectives": [
+        "Implement Shor's 9-qubit quantum error correcting code",
+        "Understand stabilizer formalism",
+        "Correct both bit-flip and phase-flip errors"
+      ],
+      "hints": [
+        "Shor's code protects against arbitrary single-qubit errors",
+        "Uses 3 qubits to correct bit flips, 3 codes to correct phase flips",
+        "Measure stabilizer generators to detect errors"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_020",
+      "title": "Changing Qubits",
+      "description": "Route a quantum state through the virus-ridden channel.",
+      "category": "Error Correction",
+      "difficulty": "Advanced",
+      "points": 400,
+      "tags": [
+        "error-correction",
+        "noisy-channels",
+        "decoding"
+      ],
+      "learning_objectives": [
+        "Navigate quantum states through noisy environments",
+        "Implement error correction in realistic noise models",
+        "Understand quantum channel capacity"
+      ],
+      "hints": [
+        "Model noise as quantum channels (depolarizing, amplitude damping)",
+        "Use error correction codes to protect information",
+        "Optimize encoding/decoding for the specific noise model"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_021",
+      "title": "Don't Hit the Ground",
+      "description": "Calculate the half-life of an excited state.",
+      "category": "Quantum Information",
+      "difficulty": "Intermediate",
+      "points": 200,
+      "tags": [
+        "decay",
+        "half-life",
+        "dynamics"
+      ],
+      "learning_objectives": [
+        "Model quantum state decay processes",
+        "Calculate excited state lifetimes",
+        "Understand open quantum systems"
+      ],
+      "hints": [
+        "Excited states decay exponentially: |\u03c8(t)|\u00b2 \u221d e^{-\u03b3t}",
+        "Half-life is t\u2081/\u2082 = ln(2)/\u03b3 where \u03b3 is decay rate",
+        "Use qml.AmplitudeDamping to model decay"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_022",
+      "title": "Quantum State Discrimination",
+      "description": "Distinguish two qubit states using one measurement.",
+      "category": "Quantum Information",
+      "difficulty": "Intermediate",
+      "points": "225",
+      "tags": [
+        "discrimination",
+        "measurements",
+        "information"
+      ],
+      "learning_objectives": [
+        "Implement optimal quantum state discrimination",
+        "Understand measurement strategies for unknown states",
+        "Calculate discrimination probabilities"
+      ],
+      "hints": [
+        "Optimal discrimination uses projective measurements",
+        "Success probability depends on state overlap",
+        "For orthogonal states, perfect discrimination is possible"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_023",
+      "title": "An Itch to Switch",
+      "description": "Switch basis state qubits with your friend.",
+      "category": "Quantum Information",
+      "difficulty": "Advanced",
+      "points": 300,
+      "tags": [
+        "swapping",
+        "entanglement",
+        "protocols"
+      ],
+      "learning_objectives": [
+        "Implement quantum state swapping protocols",
+        "Use entanglement for quantum communication",
+        "Understand quantum teleportation variants"
+      ],
+      "hints": [
+        "Quantum SWAP gate exchanges the states of two qubits",
+        "Can be implemented using three CNOT gates",
+        "Consider using entanglement for remote swapping"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_024",
+      "title": "The Super Parameter",
+      "description": "Explore the concept of expressivity in QML.",
+      "category": "Quantum Machine Learning",
+      "difficulty": "Intermediate",
+      "points": 275,
+      "tags": [
+        "qml",
+        "expressivity",
+        "parameters"
+      ],
+      "learning_objectives": [
+        "Understand quantum machine learning expressivity",
+        "Measure circuit expressibility and entangling capability",
+        "Compare different ansatz architectures"
+      ],
+      "hints": [
+        "Expressivity measures how much of Hilbert space circuit can explore",
+        "Use metrics like effective dimension or Fisher information",
+        "More parameters doesn't always mean better expressivity"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_025",
+      "title": "Noisy QAOA",
+      "description": "Find the approximation ratio of a noisy QAOA circuit.",
+      "category": "Algorithms",
+      "difficulty": "Advanced",
+      "points": 350,
+      "tags": [
+        "qaoa",
+        "noise",
+        "nisq"
+      ],
+      "learning_objectives": [
+        "Study QAOA performance under realistic noise",
+        "Implement error mitigation techniques",
+        "Understand NISQ algorithm limitations"
+      ],
+      "hints": [
+        "Add noise channels after each gate operation",
+        "Try error mitigation like zero-noise extrapolation",
+        "Shorter circuits are more robust to noise"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_026",
+      "title": "Counting Mountains",
+      "description": "Count peaks and valleys using quantum circuits.",
+      "category": "Algorithms",
+      "difficulty": "Advanced",
+      "points": 375,
+      "tags": [
+        "counting",
+        "oracles",
+        "amplitude-amplification"
+      ],
+      "learning_objectives": [
+        "Implement quantum counting algorithms",
+        "Use amplitude amplification for search problems",
+        "Count solutions to optimization problems"
+      ],
+      "hints": [
+        "Quantum counting uses quantum Fourier transform",
+        "Amplitude amplification generalizes Grover's algorithm",
+        "Can count solutions without finding them explicitly"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_027",
+      "title": "A Noisy Heisenberg Model",
+      "description": "Simulate the Heisenberg Hamiltonian with added noise.",
+      "category": "Hamiltonians",
+      "difficulty": "Advanced",
+      "points": 325,
+      "tags": [
+        "heisenberg",
+        "noise",
+        "many-body"
+      ],
+      "learning_objectives": [
+        "Simulate noisy many-body quantum systems",
+        "Understand decoherence effects on quantum magnetism",
+        "Compare ideal vs realistic quantum simulations"
+      ],
+      "hints": [
+        "Heisenberg model: H = J\u2211(X\u2297X + Y\u2297Y + Z\u2297Z)",
+        "Add decoherence during time evolution",
+        "Observe how noise affects quantum correlations"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_028",
+      "title": "Secrets in Spacetime",
+      "description": "Develop a method to test a noisy encrypter.",
+      "category": "Optimization",
+      "difficulty": "Intermediate",
+      "points": 250,
+      "tags": [
+        "cryptography",
+        "testing",
+        "protocols"
+      ],
+      "learning_objectives": [
+        "Design quantum cryptographic protocols",
+        "Test quantum encryption under noise",
+        "Understand quantum key distribution security"
+      ],
+      "hints": [
+        "Use quantum state discrimination to test encryption quality",
+        "Eavesdropping introduces detectable disturbances",
+        "Perfect encryption makes all outputs look random"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_029",
+      "title": "Revisiting Schrodinger's Cat",
+      "description": "Design an experiment to make a zombie cat.",
+      "category": "Optimization",
+      "difficulty": "Intermediate",
+      "points": 225,
+      "tags": [
+        "superposition",
+        "measurement",
+        "decoherence"
+      ],
+      "learning_objectives": [
+        "Create and maintain quantum superposition states",
+        "Understand measurement-induced state collapse",
+        "Design experiments with macroscopic quantum effects"
+      ],
+      "hints": [
+        "Schr\u00f6dinger's cat is a superposition of alive and dead states",
+        "Zombie cat might be a coherent mixture of states",
+        "Use quantum error correction to protect superposition"
+      ]
+    },
+    {
+      "challenge_id": "CHAL_030",
+      "title": "A Pauli-Worded Problem",
+      "description": "Identify a state from noisy copies of it.",
+      "category": "Quantum Information",
+      "difficulty": "Intermediate",
+      "points": 250,
+      "tags": [
+        "state-tomography",
+        "pauli",
+        "reconstruction"
+      ],
+      "learning_objectives": [
+        "Perform quantum state tomography",
+        "Reconstruct quantum states from measurement data",
+        "Handle noise in state reconstruction"
+      ],
+      "hints": [
+        "Measure in Pauli X, Y, Z bases to reconstruct state",
+        "Use maximum likelihood estimation for noisy data",
+        "Need at least 3^n measurements for n-qubit tomography"
+      ]
+    }
+  ]
+}

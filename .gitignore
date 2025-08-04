@@ -1,0 +1,60 @@
+# ==== Common ====
+.DS_Store
+.env
+.env.*
+*.log
+*.sqlite3
+*.db
+*.swp
+*.tgz
+.idea/
+.vscode/
+dist/
+build/
+coverage/
+.mypy_cache/
+.pytest_cache/
+*.py[cod]
+__pycache__/
+
+# ==== Node / Frontend ====
+node_modules/
+.next/
+out/
+.nyc_output/
+.eslintcache
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.pnpm-debug.log
+.yarn/versions/
+.yarn/install-state.gz
+public/build/
+storybook-static/
+.turbo/
+
+# ==== Python / Backend ====
+.venv/
+venv/
+env/
+__pypackages__/
+
+# ==== Test / Lint ====
+*.test.js
+*.test.ts
+*.test.tsx
+*.snap
+*.spec.js
+*.spec.ts
+*.spec.tsx
+coverage/
+
+# ==== OS ====
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# ==== Local Dev Tools ====
+*.local
+*.dev.env
