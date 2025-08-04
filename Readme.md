@@ -20,7 +20,7 @@ Users can browse coding challenges, ask questions in a support forum, and agents
 
 - **Node.js** ≥ 18 .x and **npm** / Yarn  
 - **Python** 3.10+  
-- A relational database (SQLite by default, PostgreSQL recommended)  
+- A relational database ( PostgreSQL recommended)  
 - An **Auth0** tenant with:
   - One **Single Page Application** (Frontend)
   - One **Machine-to-Machine** or **Regular Web** Application (Backend)
