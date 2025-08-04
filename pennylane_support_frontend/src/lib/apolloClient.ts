@@ -6,13 +6,13 @@ import {
   from,
 } from '@apollo/client';
 
-/* In-memory token that other modules can mutate ------------------ */
+
 export let accessToken: string | null = null;
 export const setAccessToken = (token: string | null) => {
   accessToken = token;
 };
 
-/* HTTP transport ------------------------------------------------- */
+
 const httpLink = new HttpLink({
   uri:
     process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT ??
@@ -20,7 +20,7 @@ const httpLink = new HttpLink({
   credentials: 'include',
 });
 
-/* Auth link – inject header if we have a token ------------------- */
+
 const authLink = new ApolloLink((operation, forward) => {
   if (accessToken) {
     operation.setContext(({ headers = {} }) => ({

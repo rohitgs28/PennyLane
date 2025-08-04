@@ -13,25 +13,15 @@ from urllib.request import urlopen
 # Use python-jose for JWT handling
 from jose import jwt, JWTError, ExpiredSignatureError
 
-# ---------------------------------------------------------------------
-# Environment configuration
-# ---------------------------------------------------------------------
+
 AUTH0_DOMAIN: str = os.getenv("AUTH0_DOMAIN", "")
 API_IDENTIFIER: str = os.getenv("API_IDENTIFIER", "")
 ALGORITHMS: List[str] = os.getenv("ALGORITHMS", "RS256").split(",")
-# Namespace used to retrieve custom claims (roles)
 NAMESPACE: str = os.getenv("AUTH0_NAMESPACE", "https://pennylane.app/")
-# Set this to "1" in development to skip certificate verification entirely
 SKIP_TLS: bool = os.getenv("FLASK_SKIP_TLS_VERIFY") == "1"
 
-# ---------------------------------------------------------------------
-# Helper: robust JSON downloader (handles missing root certs)
-# ---------------------------------------------------------------------
+
 def _download_json(url: str) -> Dict[str, Any]:
-    """
-    Download and parse JSON from `url`, retrying with certifi CA bundle
-    when Python’s default certificate store cannot verify the server certificate.
-    """
     def _open(ctx: Optional[ssl.SSLContext]) -> bytes:
         return urlopen(url, context=ctx).read()
 
@@ -54,9 +44,7 @@ def _download_json(url: str) -> Dict[str, Any]:
         # Re-raise if we cannot recover
         raise
 
-# ---------------------------------------------------------------------
-# Custom exception used by GraphQL and Flask
-# ---------------------------------------------------------------------
+
 class AuthError(Exception):
     """Standardised error raised on authentication/authorization failures."""
     def __init__(self, error: Dict[str, str], status_code: int) -> None:
@@ -64,9 +52,7 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
-# ---------------------------------------------------------------------
-# Helpers to extract the bearer token from headers/cookies
-# ---------------------------------------------------------------------
+
 def _extract_bearer(header_value: Optional[str]) -> Optional[str]:
     if not header_value:
         return None
@@ -101,9 +87,7 @@ def get_token_auth_header() -> str:
         401,
     )
 
-# ---------------------------------------------------------------------
-# Decorator – usable with or without arguments
-# ---------------------------------------------------------------------
+
 def requires_auth(_fn=None, *, required_role: Optional[str] = None):
     """
     Decorator to enforce JWT authentication (and optional role gating).
@@ -161,9 +145,6 @@ def requires_auth(_fn=None, *, required_role: Optional[str] = None):
                     401,
                 )
 
-            # Populate Flask global context with only needed claims.
-            # 'sub' is required by conversation_service, and the names/email
-            # ensure the created/updated User has correct values.
             g.current_user = {
                 "sub": payload.get("sub"),
                 "email": payload.get("email"),

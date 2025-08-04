@@ -38,9 +38,7 @@ class ConversationPostType(SQLAlchemyObjectType):
         model = ConversationPost
 
 
-# ─────────────────────────────────────────────────────────────
-# SupportConversation
-# ─────────────────────────────────────────────────────────────
+
 class SupportConversationType(SQLAlchemyObjectType):
 
     class Meta:

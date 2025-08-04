@@ -19,13 +19,10 @@ export default function HomePage() {
 
   return (
     <Box px={6} py={8} maxW="6xl" mx="auto">
-     
-
       <Heading mb={4}>Welcome to PennyLane Support</Heading>
       <Text fontSize="lg" mb={6} color="gray.600">
         Your hub for tackling quantum computing challenges and sharing knowledge with the community.
       </Text>
-
       {!isAuthenticated ? (
         <VStack align="start" spacing={4}>
           <Text fontSize="md">
@@ -38,8 +35,7 @@ export default function HomePage() {
       ) : (
         <VStack align="start" spacing={4}>
           <Text fontSize="lg">
-            👋 Hello&nbsp;
-            <strong>{user?.name || user?.nickname || user?.email}</strong>!
+            Hello {user?.name || user?.nickname || user?.email}!
           </Text>
           <Text>
             Use the links below to start exploring challenges and join the conversation.
