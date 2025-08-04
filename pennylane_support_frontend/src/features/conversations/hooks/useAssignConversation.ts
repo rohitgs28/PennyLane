@@ -6,6 +6,14 @@ import type {
 } from '@/app/graphql/types';
 import { useToast } from '@chakra-ui/react';
 
+
+/**
+ * @param onAssigned - Optional callback fired when a conversation is successfully assigned.
+ * @returns An object with:
+ *  - `assignConversation`: A function that triggers the mutation given a conversation ID.
+ *  - `assigning`: Boolean indicating whether the mutation is currently in flight.
+ */
+
 export function useAssignConversation(onAssigned?: () => void) {
   const toast = useToast();
   const [mutate, { loading }] = useMutation<

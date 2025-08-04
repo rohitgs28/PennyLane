@@ -14,6 +14,13 @@ interface Props {
   users: import('@/types/domain').SupportUser[];
 }
 
+/**
+ * Render a form of dropdowns and inputs to filter the conversation list.
+ *
+ * Exposes a single `onChange` handler that merges partial filter changes and lets
+ * the parent component control state.  If the user is an agent, an additional
+ * "Assigned to" dropdown is shown.
+ */
 
 export const ConversationFilters: React.FC<Props> = ({
   searchTerm,

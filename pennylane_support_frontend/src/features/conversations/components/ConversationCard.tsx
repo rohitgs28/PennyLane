@@ -16,7 +16,12 @@ interface Props {
   conversation: ConversationSummary;
   onAssigned: () => void;
 }
-
+/**
+ * Render a single conversation in the list with assignment controls and metadata.
+ *
+ * @param conversation The conversation summary to render.
+ * @param onAssigned   Function called when the assignment mutation completes successfully.
+ */
 export const ConversationCard: React.FC<Props> = ({
   conversation,
   onAssigned,

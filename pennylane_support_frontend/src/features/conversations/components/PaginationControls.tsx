@@ -7,7 +7,13 @@ interface Props {
   perPage: number;
   onChange: (page: number) => void;
 }
-
+/**
+ * Render "Prev" and "Next" buttons along with a page counter.
+ * @param page    Current page index.
+ * @param total   Total number of items to paginate.
+ * @param perPage Number of items per page.
+ * @param onChange Handler to be called when page navigation occurs.
+ */
 export const PaginationControls: React.FC<Props> = ({ page, total, perPage, onChange }) => {
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   const hasPrev = page > 1;
