@@ -1,21 +1,73 @@
+from __future__ import annotations
+
 import json
-from functools import wraps
-from urllib.request import urlopen
-from flask import request, g
-from jose import jwt, JWTError
 import os
+import ssl
+from functools import wraps
+from typing import Any, Dict, List, Optional
 
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-API_IDENTIFIER = os.getenv("API_IDENTIFIER")
-AUTH0_NAMESPACE = os.getenv("AUTH0_NAMESPACE", "https://pennylane.app/")
-ALGORITHMS = [os.getenv("ALGORITHMS", "RS256")]
+from flask import g, request
+from urllib.error import URLError
+from urllib.request import urlopen
 
+# Use python-jose for JWT handling
+from jose import jwt, JWTError, ExpiredSignatureError
+
+# ---------------------------------------------------------------------
+# Environment configuration
+# ---------------------------------------------------------------------
+AUTH0_DOMAIN: str = os.getenv("AUTH0_DOMAIN", "")
+API_IDENTIFIER: str = os.getenv("API_IDENTIFIER", "")
+ALGORITHMS: List[str] = os.getenv("ALGORITHMS", "RS256").split(",")
+# Namespace used to retrieve custom claims (roles)
+NAMESPACE: str = os.getenv("AUTH0_NAMESPACE", "https://pennylane.app/")
+# Set this to "1" in development to skip certificate verification entirely
+SKIP_TLS: bool = os.getenv("FLASK_SKIP_TLS_VERIFY") == "1"
+
+# ---------------------------------------------------------------------
+# Helper: robust JSON downloader (handles missing root certs)
+# ---------------------------------------------------------------------
+def _download_json(url: str) -> Dict[str, Any]:
+    """
+    Download and parse JSON from `url`, retrying with certifi CA bundle
+    when Python’s default certificate store cannot verify the server certificate.
+    """
+    def _open(ctx: Optional[ssl.SSLContext]) -> bytes:
+        return urlopen(url, context=ctx).read()
+
+    try:
+        # If SKIP_TLS is set, use an unverified context (for dev only!)
+        if SKIP_TLS:
+            ctx = ssl._create_unverified_context()  # type: ignore[attr-defined]
+            return json.loads(_open(ctx))
+        # Try with the default context first
+        return json.loads(_open(None))
+    except URLError as err:
+        # On macOS the default CA bundle might be missing; retry with certifi
+        if isinstance(getattr(err, "reason", None), ssl.SSLCertVerificationError):
+            try:
+                import certifi
+                ctx = ssl.create_default_context(cafile=certifi.where())
+                return json.loads(_open(ctx))
+            except Exception:
+                pass
+        # Re-raise if we cannot recover
+        raise
+
+# ---------------------------------------------------------------------
+# Custom exception used by GraphQL and Flask
+# ---------------------------------------------------------------------
 class AuthError(Exception):
-    def __init__(self, error, status_code):
+    """Standardised error raised on authentication/authorization failures."""
+    def __init__(self, error: Dict[str, str], status_code: int) -> None:
+        super().__init__(error)
         self.error = error
         self.status_code = status_code
 
-def _extract_bearer(header_value: str | None):
+# ---------------------------------------------------------------------
+# Helpers to extract the bearer token from headers/cookies
+# ---------------------------------------------------------------------
+def _extract_bearer(header_value: Optional[str]) -> Optional[str]:
     if not header_value:
         return None
     parts = header_value.split()
@@ -23,72 +75,117 @@ def _extract_bearer(header_value: str | None):
         return parts[1]
     return None
 
-def get_token_auth_header():
-    # 1) Authorization: Bearer
+def get_token_auth_header() -> str:
+    """Return the JWT from the Authorization header, an alternate header,
+    or from a cookie.  Raises AuthError if no token can be found."""
+    # 1) Standard Authorization header
     token = _extract_bearer(request.headers.get("Authorization"))
     if token:
         return token
 
-    # 2) Alternate header (belt & suspenders)
+    # 2) Alternate header names (belt & suspenders)
     alt = request.headers.get("X-Access-Token") or request.headers.get("x-access-token")
     if alt and alt.strip():
         return alt.strip()
 
-    # 3) Common cookie names (if you choose to set them)
+    # 3) Common cookie names (if tokens are stored in cookies)
     for name in ("access_token", "accessToken", "access-token"):
         cookie_val = request.cookies.get(name)
         if cookie_val:
             return cookie_val
 
+    # If nothing is found, raise an error
     raise AuthError(
-        {"code": "authorization_header_missing", "description": "Authorization header expected"},
+        {"code": "authorization_header_missing",
+         "description": "Authorization header expected"},
         401,
     )
 
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = get_token_auth_header()
-        try:
-            jwks = json.loads(urlopen(f"https://{AUTH0_DOMAIN}/.well-known/jwks.json").read())
+# ---------------------------------------------------------------------
+# Decorator – usable with or without arguments
+# ---------------------------------------------------------------------
+def requires_auth(_fn=None, *, required_role: Optional[str] = None):
+    """
+    Decorator to enforce JWT authentication (and optional role gating).
+    Usage:
+      @requires_auth                      → any authenticated user
+      @requires_auth(required_role="support_admin") → only users with that role
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Fetch the bearer token
+            token = get_token_auth_header()
+
+            # Fetch JWKS with robust SSL handling
+            jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+            jwks = _download_json(jwks_url)
+
+            # Validate token header and find matching JWK
             unverified_header = jwt.get_unverified_header(token)
-        except Exception:
-            raise AuthError({"code": "invalid_header", "description": "Invalid token header."}, 401)
+            kid = unverified_header.get("kid")
+            if not kid:
+                raise AuthError(
+                    {"code": "invalid_header",
+                     "description": "Invalid token header."},
+                    401,
+                )
+            rsa_key = next((k for k in jwks["keys"] if k["kid"] == kid), None)
+            if not rsa_key:
+                raise AuthError(
+                    {"code": "invalid_header",
+                     "description": "Unable to find matching JWKS key."},
+                    401,
+                )
 
-        if "kid" not in unverified_header:
-            raise AuthError({"code": "invalid_header", "description": "Token is not a valid RS256 JWT (kid missing)."}, 401)
+            # Validate and decode the JWT using python-jose
+            try:
+                payload = jwt.decode(
+                    token,
+                    rsa_key,
+                    algorithms=ALGORITHMS,
+                    audience=API_IDENTIFIER,
+                    issuer=f"https://{AUTH0_DOMAIN}/",
+                )
+            except ExpiredSignatureError:
+                raise AuthError(
+                    {"code": "token_expired",
+                     "description": "Token expired."},
+                    401,
+                )
+            except JWTError as e:
+                # All other JWT errors (invalid claims, bad signature, etc.)
+                raise AuthError(
+                    {"code": "invalid_header",
+                     "description": str(e)},
+                    401,
+                )
 
-        rsa_key = next(
-            (
-                {
-                    "kty": k["kty"],
-                    "kid": k["kid"],
-                    "use": k["use"],
-                    "n": k["n"],
-                    "e": k["e"],
-                }
-                for k in jwks["keys"]
-                if k["kid"] == unverified_header["kid"]
-            ),
-            None,
-        )
-        if not rsa_key:
-            raise AuthError({"code": "invalid_header", "description": "Unable to find matching JWKS key."}, 401)
+            # Populate Flask global context with only needed claims.
+            # 'sub' is required by conversation_service, and the names/email
+            # ensure the created/updated User has correct values.
+            g.current_user = {
+                "sub": payload.get("sub"),
+                "email": payload.get("email"),
+                "nickname": payload.get("nickname"),
+                "name": payload.get("name"),
+            }
+            g.roles = payload.get(f"{NAMESPACE}roles", [])
 
-        try:
-            payload = jwt.decode(
-                token,
-                rsa_key,
-                algorithms=ALGORITHMS,
-                audience=API_IDENTIFIER,
-                issuer=f"https://{AUTH0_DOMAIN}/",
-            )
-        except jwt.ExpiredSignatureError:
-            raise AuthError({"code": "token_expired", "description": "Token expired."}, 401)
-        except JWTError as e:
-            raise AuthError({"code": "invalid_claims", "description": str(e)}, 401)
+            # If a role is required, verify it
+            if required_role and required_role not in g.roles:
+                raise AuthError(
+                    {"code": "forbidden",
+                     "description": f"Role '{required_role}' required."},
+                    403,
+                )
 
-        g.current_user = payload
-        g.roles = payload.get(f"{AUTH0_NAMESPACE}roles", [])
-        return f(*args, **kwargs)
-    return decorated
+            # Call the wrapped function
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    # Support both @requires_auth and @requires_auth(...)
+    if callable(_fn):
+        return decorator(_fn)
+    return decorator

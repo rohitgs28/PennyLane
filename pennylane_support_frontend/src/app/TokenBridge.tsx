@@ -19,8 +19,11 @@ export default function TokenBridge() {
     (async () => {
       try {
         const token = await getAccessTokenSilently({
-          audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
+          authorizationParams: {
+            audience: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE!,
+          },
         });
+        
         setAccessToken(token);
       } catch {
         setAccessToken(null);

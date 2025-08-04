@@ -1,4 +1,3 @@
-# app/graphql/types.py
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from graphene import relay
@@ -7,14 +6,16 @@ from app.extensions import db
 from app.models.user import User
 from app.models.challenge import Challenge, ChallengeHint, LearningObjective, Tag
 from app.models.support import SupportConversation, ConversationPost
-
-
-# ─────────────────────────────────────────────────────────────
-# Basic objects
-# ─────────────────────────────────────────────────────────────
 class UserType(SQLAlchemyObjectType):
+
     class Meta:
         model = User
+
+  
+    name = graphene.String()
+
+    def resolve_name(parent: User, info):
+        return getattr(parent, "name", None) or getattr(parent, "username", None)
 
 
 class TagType(SQLAlchemyObjectType):
@@ -46,7 +47,7 @@ class SupportConversationType(SQLAlchemyObjectType):
         model = SupportConversation
 
     posts = graphene.List(lambda: ConversationPostType)
-    assigned_support = graphene.Field(lambda: UserType)      # ← (1) rename target
+    assigned_support = graphene.Field(lambda: UserType)
 
     # resolvers
     def resolve_posts(parent, info):
@@ -58,30 +59,27 @@ class SupportConversationType(SQLAlchemyObjectType):
         return None
 
 
-# ─────────────────────────────────────────────────────────────
-# Challenge (with nested conversations, hints, etc.)
-# ─────────────────────────────────────────────────────────────
 class ChallengeType(SQLAlchemyObjectType):
     class Meta:
         model = Challenge
-    assigned_support = graphene.Field(UserType)    
+
+    assigned_support = graphene.Field(UserType)
     conversations = graphene.List(lambda: SupportConversationType)
     hints = graphene.List(lambda: ChallengeHintType)
     learning_objectives = graphene.List(lambda: LearningObjectiveType)
 
-    def resolve_conversations(parent, info):
+
+    def resolve_conversations(parent: Challenge, info):
         return parent.conversations
 
-    def resolve_hints(parent, info):
+    def resolve_hints(parent: Challenge, info):
         return parent.hints
 
-    def resolve_learning_objectives(parent, info):
+    def resolve_learning_objectives(parent: Challenge, info):
         return parent.learning_objectives
 
 
-# ─────────────────────────────────────────────────────────────
-# Pagination wrappers
-# ─────────────────────────────────────────────────────────────
+
 class PaginatedConversationsType(graphene.ObjectType):
     items = graphene.List(SupportConversationType)
     total = graphene.Int()

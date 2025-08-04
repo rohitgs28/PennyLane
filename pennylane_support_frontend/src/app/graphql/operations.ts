@@ -193,3 +193,14 @@ export const LIST_CHALLENGES_PAGED = gql`
   }
   ${CHALLENGE_CARD_FIELDS}
 `;
+
+
+export const SYNC_USER = gql`
+  mutation SyncUser($e: String!, $n: String!) {
+  syncUser(email: $e, name: $n) {
+    ok
+    user { id email name }
+  }
+}
+
+`;

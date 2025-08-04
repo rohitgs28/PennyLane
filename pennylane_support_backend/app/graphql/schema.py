@@ -9,10 +9,10 @@ from .mutations.conversation_mutations import (
 )
 
 class Mutation(graphene.ObjectType):
-    syncUser = SyncUser.Field()
+    sync_user = SyncUser.Field()
     createConversation = CreateConversation.Field()
     addPost = AddPost.Field()
-    assignConversation = AssignConversation.Field()          # ← returns convo now
+    assignConversation = AssignConversation.Field()        
     updateConversationStatus = UpdateConversationStatus.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

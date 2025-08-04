@@ -1,4 +1,3 @@
-# app/cli.py
 import json
 from datetime import datetime
 import click
@@ -11,7 +10,7 @@ from app.models.challenge import (
     Tag,
     ChallengeHint,
     LearningObjective,
-    ChallengeTag,  # your join model (has __table__)
+    ChallengeTag,
 )
 from app.models.support import (
     SupportConversation,
@@ -31,11 +30,9 @@ def _chunks(iterable, size=1000):
         yield buf
 
 def _parse_iso(ts: str | None):
-    """Parse minimal ISO timestamps; accepts ...Z or with offsets. Returns None if not parseable."""
     if not ts:
         return None
     try:
-        # Handle trailing Z
         return datetime.fromisoformat(ts.replace("Z", "+00:00"))
     except Exception:
         return None
@@ -43,7 +40,6 @@ def _parse_iso(ts: str | None):
 # ---------- core loaders ----------
 
 def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
-    """Bulk upsert challenges + tags + learning_objectives + hints + m2m."""
     click.echo(f"Loading challenges JSON from: {path}")
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
@@ -53,7 +49,7 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
         click.echo("No 'coding_challenges' found. Skipping.")
         return
 
-    # 1) Upsert Tags first (collect distinct tag names)
+    # Tags
     tag_names = set()
     for c in items:
         for t in c.get("tags", []):
@@ -63,16 +59,12 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
         tag_rows = [{"name": n} for n in tag_names if n]
         for batch in _chunks(tag_rows, chunk_size):
             stmt = pg_insert(Tag.__table__).values(batch)
-            # ON CONFLICT (name) DO NOTHING
             stmt = stmt.on_conflict_do_nothing(index_elements=["name"])
             db.session.execute(stmt)
 
-    # Fetch tag id cache
-    tag_map = dict(
-        db.session.execute(select(Tag.name, Tag.id)).all()
-    )  # {name: id}
+    tag_map = dict(db.session.execute(select(Tag.name, Tag.id)).all())
 
-    # 2) Upsert Challenges (by public_id)
+    # Challenges
     challenge_rows = []
     for c in items:
         challenge_rows.append({
@@ -82,12 +74,10 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
             "category": c.get("category"),
             "difficulty": c.get("difficulty"),
             "points": c.get("points") or 0,
-            # created_at/updated_at use DB defaults
         })
 
     for batch in _chunks(challenge_rows, chunk_size):
         stmt = pg_insert(Challenge.__table__).values(batch)
-        # If already exists, update selected columns (optional)
         stmt = stmt.on_conflict_do_update(
             index_elements=["public_id"],
             set_={
@@ -100,12 +90,9 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
         )
         db.session.execute(stmt)
 
-    # Fetch challenge id map {public_id: id}
-    chall_map = dict(
-        db.session.execute(select(Challenge.public_id, Challenge.id)).all()
-    )
+    chall_map = dict(db.session.execute(select(Challenge.public_id, Challenge.id)).all())
 
-    # 3) Insert LearningObjectives / Hints in bulk
+    # Learning objectives & hints
     lo_rows, hint_rows = [], []
     for c in items:
         cid = chall_map.get(c["challenge_id"])
@@ -123,7 +110,7 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
     for batch in _chunks(hint_rows, chunk_size):
         db.session.execute(ChallengeHint.__table__.insert(), batch)
 
-    # 4) Insert challenge_tags m2m rows
+    # Challenge-Tag m2m
     ct_rows = []
     for c in items:
         cid = chall_map.get(c["challenge_id"])
@@ -135,20 +122,17 @@ def _seed_challenges_from_json(path: str, chunk_size: int = 1000):
                 ct_rows.append({"challenge_id": cid, "tag_id": tid})
 
     for batch in _chunks(ct_rows, chunk_size):
-        # ON CONFLICT DO NOTHING to avoid dup m2m rows
         stmt = pg_insert(ChallengeTag.__table__).values(batch)
-        stmt = stmt.on_conflict_do_nothing(
-            index_elements=["challenge_id", "tag_id"]
-        )
+        stmt = stmt.on_conflict_do_nothing(index_elements=["challenge_id", "tag_id"])
         db.session.execute(stmt)
 
     db.session.commit()
-    click.echo(f"Challenges: {len(challenge_rows)} upserted | Tags: {len(tag_names)} | LOs: {len(lo_rows)} | Hints: {len(hint_rows)}")
-
-
+    click.echo(
+        f"Challenges: {len(challenge_rows)} upserted | Tags: {len(tag_names)} "
+        f"| LOs: {len(lo_rows)} | Hints: {len(hint_rows)}"
+    )
 
 def _seed_conversations_from_json(path: str, chunk_size: int = 1000):
-    """Bulk upsert support conversations + posts."""
     click.echo(f"Loading conversations JSON from: {path}")
     with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
@@ -158,12 +142,8 @@ def _seed_conversations_from_json(path: str, chunk_size: int = 1000):
         click.echo("No 'support_conversations' found. Skipping.")
         return
 
-    # Need challenge_id map for FK
-    chall_map = dict(
-        db.session.execute(select(Challenge.public_id, Challenge.id)).all()
-    )
+    chall_map = dict(db.session.execute(select(Challenge.public_id, Challenge.id)).all())
 
-    # 1) Upsert conversations by identifier
     conv_rows = []
     for c in items:
         conv_rows.append({
@@ -176,7 +156,6 @@ def _seed_conversations_from_json(path: str, chunk_size: int = 1000):
 
     for batch in _chunks(conv_rows, chunk_size):
         stmt = pg_insert(SupportConversation.__table__).values(batch)
-        # On conflict update topic/category/status/challenge_id
         stmt = stmt.on_conflict_do_update(
             index_elements=["identifier"],
             set_={
@@ -188,12 +167,12 @@ def _seed_conversations_from_json(path: str, chunk_size: int = 1000):
         )
         db.session.execute(stmt)
 
-    # Fetch conversation id map {identifier: id}
     conv_map = dict(
-        db.session.execute(select(SupportConversation.identifier, SupportConversation.id)).all()
+        db.session.execute(
+            select(SupportConversation.identifier, SupportConversation.id)
+        ).all()
     )
 
-    # 2) Insert posts
     posts = []
     for c in items:
         conv_id = conv_map.get(c.get("identifier"))
@@ -213,7 +192,6 @@ def _seed_conversations_from_json(path: str, chunk_size: int = 1000):
     db.session.commit()
     click.echo(f"Conversations: {len(conv_rows)} upserted | Posts: {len(posts)} inserted")
 
-
 # ---------- public CLI ----------
 
 def register_cli(app):
@@ -221,7 +199,6 @@ def register_cli(app):
     @click.argument("challenges_json", type=click.Path(exists=True))
     @click.option("--chunk", default=1000, help="Batch size for bulk operations")
     def seed_challenges_cmd(challenges_json, chunk):
-        """Seed only challenges from JSON."""
         with app.app_context():
             _seed_challenges_from_json(challenges_json, chunk)
 
@@ -229,7 +206,6 @@ def register_cli(app):
     @click.argument("conversations_json", type=click.Path(exists=True))
     @click.option("--chunk", default=1000, help="Batch size for bulk operations")
     def seed_conversations_cmd(conversations_json, chunk):
-        """Seed only conversations from JSON."""
         with app.app_context():
             _seed_conversations_from_json(conversations_json, chunk)
 
@@ -238,7 +214,6 @@ def register_cli(app):
     @click.argument("conversations_json", type=click.Path(exists=True))
     @click.option("--chunk", default=1000, help="Batch size for bulk operations")
     def seed_all_cmd(challenges_json, conversations_json, chunk):
-        """Seed both challenges and conversations JSON in one go."""
         with app.app_context():
             _seed_challenges_from_json(challenges_json, chunk)
             _seed_conversations_from_json(conversations_json, chunk)
