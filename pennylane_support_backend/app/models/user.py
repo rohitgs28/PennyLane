@@ -1,5 +1,6 @@
 from app.extensions import db
 from sqlalchemy import func  
+from sqlalchemy.dialects import postgresql
 
 class User(db.Model):
     __tablename__ = "users"
@@ -8,7 +9,12 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     name     = db.Column(db.String(120)) 
-    roles = db.Column(db.JSON, nullable=False, server_default='[]')
+    roles = db.Column(
+        postgresql.ARRAY(db.String),
+        nullable=False,
+        default=list,
+        server_default='{}'
+    )
     auth0_id = db.Column(db.String(255), unique=True, nullable=False) 
 
     def __repr__(self):

@@ -10,27 +10,38 @@ export function useSyncUser() {
   const [syncUser] = useMutation(SYNC_USER);
   const inFlight = useRef(false);
 
+  const previousSub = useRef<string | null>(null);
+
   useEffect(() => {
+    if (!user) {
+      previousSub.current = null;
+    }
+
     if (isLoading || !user || inFlight.current) return;
 
-    const sub = (user as any)?.sub;
-    const email = (user as any)?.email;
-    const username =
-      (user as any)?.nickname ||
+   
+    const sub: string | undefined = (user as any)?.sub;
+    const rawEmail: unknown =
+      (user as any)?.email ??
+      (user as any)?.['https://pennylane.app/email'] ??
+      (user as any)?.name;
+    const email: string | undefined = typeof rawEmail === 'string' ? rawEmail : undefined;
+
+    const username: string =
       (user as any)?.name ||
       (email ? email.split('@')[0] : 'user');
 
     if (!sub || !email) return;
 
-    const key = `synced:${sub}`;
-    if (typeof window !== 'undefined' && localStorage.getItem(key)) return;
 
+    if (previousSub.current === sub) return;
+
+    previousSub.current = sub;
     inFlight.current = true;
     syncUser({ variables: { email, username, auth0Id: sub } })
       .catch(() => {})
       .finally(() => {
         inFlight.current = false;
-        try { localStorage.setItem(key, '1'); } catch {}
       });
   }, [user, isLoading, syncUser]);
 }

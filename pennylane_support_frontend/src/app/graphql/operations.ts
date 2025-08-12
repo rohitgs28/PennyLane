@@ -19,7 +19,7 @@ export const CONVERSATION_FIELDS = gql`
     challenge {
       id
       title
-    }
+    }     
     assignedSupport {            
       ...UserFields
     }
@@ -196,11 +196,20 @@ export const LIST_CHALLENGES_PAGED = gql`
 
 
 export const SYNC_USER = gql`
-  mutation SyncUser($e: String!, $n: String!) {
-  syncUser(email: $e, name: $n) {
-    ok
-    user { id email name }
+  mutation SyncUser(
+    $email: String!
+    $username: String!
+    $auth0Id: String!
+  ) {
+    syncUser(email: $email, username: $username, auth0Id: $auth0Id) {
+      ok
+      user {
+        id
+        email
+        username
+        name
+      }
+    }
   }
-}
 
 `;

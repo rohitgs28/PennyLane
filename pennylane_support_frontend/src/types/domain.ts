@@ -2,6 +2,7 @@
 export interface SupportUser {
   id: number;
   username?: string;
+  name?: string;
   email?: string;
 }
 

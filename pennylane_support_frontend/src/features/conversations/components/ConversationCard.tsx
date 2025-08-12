@@ -53,7 +53,7 @@ export const ConversationCard: React.FC<Props> = ({
 
         {conversation.assignedSupport ? (
           <Tag size="sm" mt={2} colorScheme="green">
-            {`Assigned to ${conversation.assignedSupport.username ??
+            {`Assigned to ${conversation.assignedSupport.name ??
               conversation.assignedSupport.email
               }`}
           </Tag>
