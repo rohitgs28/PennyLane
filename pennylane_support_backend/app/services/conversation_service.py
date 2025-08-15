@@ -164,16 +164,34 @@ def assign_conversation(
 
     # Ensure the local User row exists or create it
     user = User.query.filter_by(auth0_id=sub).first()
+
+    ns = "https://pennylane.app/"
+    name_claim  = (current_user.get("name")  or current_user.get(f"{ns}name"))
+    email_claim = (current_user.get("email") or current_user.get(f"{ns}email"))
     if not user:
-        username = (
-            current_user.get("nickname")
-            or current_user.get("name")
-            or current_user.get("email")
-            or "agent"
-        ).split("@")[0]
-        email = current_user.get("email") or f"{username}@example.com"
-        user = User(username=username, email=email, auth0_id=sub)
+        username_source = current_user.get("nickname") or name_claim or email_claim or sub
+        username = str(username_source).split("@")[0]
+
+        email = email_claim or f"{sub.replace('|', '_')}@example.com"
+
+        user = User(
+            username=username,
+            email=email,
+            auth0_id=sub,
+            name=name_claim,  
+        )
         session.add(user)
+        session.flush()
+    else:
+        if not getattr(user, "name", None) and name_claim:
+            user.name = name_claim
+        if email_claim:
+            is_placeholder = (not user.email) or user.email.endswith("@example.com")
+            if is_placeholder and user.email != email_claim:
+                exists = session.query(User.id).filter(User.email == email_claim).first()
+                if not exists:
+                    user.email = email_claim
+
         session.flush()
 
     conv = SupportConversation.query.get(conversation_id)

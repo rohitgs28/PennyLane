@@ -145,13 +145,14 @@ def requires_auth(_fn=None, *, required_role: Optional[str] = None):
                     401,
                 )
 
-            g.current_user = {
+            ns = (NAMESPACE or "https://pennylane.app/").rstrip("/") + "/" 
+            g.current_user = {                                        
                 "sub": payload.get("sub"),
-                "email": payload.get("email"),
+                "email": payload.get(f"{ns}email") or payload.get("email"),
+                "name":  payload.get(f"{ns}name")  or payload.get("name"),
                 "nickname": payload.get("nickname"),
-                "name": payload.get("name"),
             }
-            g.roles = payload.get(f"{NAMESPACE}roles", [])
+            g.roles = payload.get(f"{ns}roles", []) 
 
             # If a role is required, verify it
             if required_role and required_role not in g.roles:

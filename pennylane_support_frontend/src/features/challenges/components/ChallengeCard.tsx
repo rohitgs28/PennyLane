@@ -39,7 +39,7 @@ export const ChallengeCard: React.FC<Props> = ({ challenge }) => {
         {challenge.assignedSupport && (
           <Tag size="sm" mt={2} colorScheme="green">
             Assigned to{' '}
-            {challenge.assignedSupport.username ??
+            {challenge.assignedSupport.name ??
               challenge.assignedSupport.email}
           </Tag>
         )}

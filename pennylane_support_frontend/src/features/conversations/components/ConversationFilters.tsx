@@ -81,7 +81,7 @@ export const ConversationFilters: React.FC<Props> = ({
         >
           {users.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.username ?? u.email}
+              {u.name ?? u.email}
             </option>
           ))}
         </Select>
